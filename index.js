@@ -132,7 +132,29 @@ app.delete("/jokebook/joke/del/:category/:index", (req, res) => {
   res.json({ removed, remaining: list });
 });
 
+//Endpoint 4
+//4_2.2be
+app.post("/jokebook/joke/:category", (req, res) => {
+  const category = req.params.category;
+  const { joke, response } = req.body;
 
+  if (!categories.includes(category)) {
+    return res
+      .status(400)
+      .json({ error: `no jokes for category ${category}` });
+  }
+
+  if (!joke || !response) {
+    return res.status(400).json({ error: "Invalid or incomplete input" });
+  }
+
+  jokes[category].push({ joke, response });
+
+  res.status(201).json({
+    message: `Joke added to category ${category}`,
+    joke: { joke, response },
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
