@@ -94,23 +94,6 @@ app.get("/jokebook/categories", (req, res) => {
   res.json(categories);
 });
 
-//Endpoint 3: dodanie nowego żartu
-// POST przykład /jokebook/joke/new?category=lameJoke&joke=Test?&response=Test!
-app.get("/jokebook/joke/new", (req, res) => {
-  const { category, joke, response } = req.query;
-
-  if (!category || !joke || !response) {
-    return res.status(400).json({ error: "Invalid or incomplete input" });
-  }
-
-  if (!categories.includes(category)) {
-    return res.status(400).json({ error: `no jokes for category ${category}` });
-  }
-
-  jokes[category].push({ joke, response });
-  res.status(201).json(jokes[category]);
-});
-
 //Endpoint 2
 app.get("/jokebook/joke/:category", (req, res) => {
   const category = req.params.category;
@@ -124,6 +107,32 @@ app.get("/jokebook/joke/:category", (req, res) => {
 
   res.json(randomJoke);
 });
+
+//Endpoint 3
+// DELETE przykład curl -X DELETE http://localhost:3000/jokebook/joke/lameJoke/0
+
+app.delete("/jokebook/joke/del/:category/:index", (req, res) => {
+  const category = req.params.category;
+  const index = Number(req.params.index);
+
+  if (!categories.includes(category)) {
+    return res
+      .status(400)
+      .json({ error: `no jokes for category ${category}` });
+  }
+
+  const list = jokes[category];
+
+  if (!Number.isInteger(index) || index < 0 || index >= list.length) {
+    return res.status(400).json({ error: "Invalid index" });
+  }
+
+  const [removed] = list.splice(index, 1);
+
+  res.json({ removed, remaining: list });
+});
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
